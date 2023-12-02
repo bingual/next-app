@@ -22,6 +22,13 @@ const PaginationTypes = z.object({
     page: z.number(),
     take: z.number(),
     count: z.number(),
+    search: z.string(),
 });
 
 type PaginationTypes = z.infer<typeof PaginationTypes>;
+
+const SearchTypes = z.object({
+    search: z.string(),
+});
+
+type SearchTypes = z.infer<typeof SearchTypes>;

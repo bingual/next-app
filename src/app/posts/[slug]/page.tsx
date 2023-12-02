@@ -1,7 +1,7 @@
 import { ResolvingMetadata } from 'next';
 import { Props } from '@/types/posts/type';
 import { redirect } from 'next/navigation';
-import { getPost } from '@/server_action/posts';
+import { getPost, setViews } from '@/server_action/posts';
 
 // 동적 메타 데이터 설정
 export async function generateMetadata(
@@ -31,6 +31,7 @@ export default async function PostDetail({
     }
 
     const post = await getPost(slug);
+    await setViews(slug);
 
     if (!post) {
         return redirect('/posts');

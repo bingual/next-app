@@ -7,30 +7,58 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/utils/authOptions';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { NumberArg, StringArg } from '@/types/type';
 
 const API_HOST = process.env.NEXT_PUBLIC_API_HOST;
 
 // 게시글 조회
-export const getPostList = async (page: number, take: number) => {
+export const getPostList = async (
+    page: NumberArg,
+    take: NumberArg,
+    search: StringArg,
+) => {
     const [postList, postCount] = await Promise.all([
         db.post.findMany({
+            where: {
+                title: {
+                    contains: search,
+                },
+            },
             take: take,
             skip: take * (page - 1),
             orderBy: { idx: 'desc' },
         }),
-        db.post.count(),
+        db.post.count({
+            where: {
+                title: {
+                    contains: search,
+                },
+            },
+        }),
     ]);
 
     return { postList, postCount };
 };
 
 // 게시글 상세
-export const getPost = async (slug: string) => {
+export const getPost = async (slug: StringArg) => {
     return db.post.findUnique({
         where: {
             idx: Number(slug),
         },
     });
+};
+
+// 조회수 증가
+export const setViews = async (slug: StringArg) => {
+    const res = await db.post.update({
+        where: { idx: Number(slug) },
+        data: { views: { increment: 1 } },
+    });
+
+    revalidatePath('/posts');
+    revalidatePath(`/posts/${slug}`);
+    return res;
 };
 
 // 게시글 생성 (formAction)
@@ -58,7 +86,7 @@ export const newPostHook = async (formData: PostFormTypes) => {
             content: String(content).trim(),
         },
     });
-    revalidatePath(`/posts/${res.idx}`);
     revalidatePath(`/posts`);
+    revalidatePath(`/posts/${res.idx}`);
     redirect('/posts');
 };

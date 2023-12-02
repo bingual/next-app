@@ -3,13 +3,18 @@ import Pagination, { ReactJsPaginationProps } from 'react-js-pagination';
 import { useRouter } from 'next/navigation';
 import { PaginationTypes } from '@/types/posts/type';
 
-export default function PostPagination({ page, take, count }: PaginationTypes) {
+export default function PostPagination({
+    page,
+    take,
+    count,
+    search,
+}: PaginationTypes) {
     const router = useRouter();
 
     const handleOnChange: ReactJsPaginationProps['onChange'] = async (
         page: number,
     ) => {
-        router.push(`/posts?page=${page}&take=${take}`, {
+        router.push(`/posts?page=${page}&take=${take}&search=${search}`, {
             scroll: false,
         });
     };

@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.scss';
 import Header from '@/components/header';
 import { SessionProvider } from 'next-auth/react';
+import { ThemeProvider } from 'next-themes';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -18,10 +19,12 @@ export default function RootLayout({
 }) {
     return (
         <html lang="ko">
-            <body className={inter.className}>
+            <body className={'mx-auto max-w-screen-xl'}>
                 <SessionProvider>
-                    <Header />
-                    {children}
+                    <ThemeProvider attribute={'class'}>
+                        <Header />
+                        {children}
+                    </ThemeProvider>
                 </SessionProvider>
             </body>
         </html>
