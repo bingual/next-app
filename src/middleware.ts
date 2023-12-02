@@ -19,6 +19,11 @@ export async function middleware(req: NextRequest, event: NextFetchEvent) {
     if (pathname === '/auth/signup' && token) {
         return NextResponse.redirect(new URL('/', req.url));
     }
+
+    // 로그인 시 로그인 페이지 접근 불가
+    if (pathname === '/auth/login' && token) {
+        return NextResponse.redirect(new URL('/', req.url));
+    }
 }
 
 // 해당 라우트 에서만 미들 웨어 실행

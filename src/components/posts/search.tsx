@@ -3,10 +3,15 @@
 import { SubmitErrorHandler, SubmitHandler, useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { SearchTypes } from '@/types/posts/type';
+import { StringArg } from '@/types/type';
 
-export default function PostSearch() {
+export default function PostSearch({ search }: { search: StringArg }) {
     const router = useRouter();
-    const { register, handleSubmit, reset } = useForm<SearchTypes>();
+    const { register, handleSubmit, reset } = useForm<SearchTypes>({
+        defaultValues: {
+            search: search,
+        },
+    });
 
     const onValid: SubmitHandler<SearchTypes> = async (formData) => {
         const { search } = formData;

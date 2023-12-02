@@ -4,10 +4,10 @@ import { JWT } from 'next-auth/jwt';
 import db from '@/utils/db';
 
 export const authOptions = {
-    // pages: {
-    //     signIn: '/',
-    //     newUser: '/auth.ts/new-user', // New users will be directed here on first sign in (leave the property out if not of interest)
-    // },
+    pages: {
+        signIn: '/',
+        newUser: '/auth.ts/new-user', // New users will be directed here on first sign in (leave the property out if not of interest)
+    },
     session: {
         maxAge: 30 * 60,
     },
