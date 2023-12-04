@@ -2,6 +2,8 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { Session } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
 import db from '@/utils/db';
+import bcrypt from 'bcrypt';
+import { produce } from 'immer';
 
 export const authOptions = {
     pages: {
@@ -34,14 +36,19 @@ export const authOptions = {
             async authorize(credentials, _req) {
                 const exUser = await db.user.findUnique({
                     where: {
-                        username: credentials?.username!,
-                        password: credentials?.password,
+                        username: String(credentials?.username).trim(),
                     },
                 });
 
-                if (exUser) {
+                // 패스워드 체크
+                const compare_password = await bcrypt.compare(
+                    String(credentials?.password!).trim(),
+                    exUser?.password!,
+                );
+
+                if (compare_password) {
                     return {
-                        username: exUser.username,
+                        username: exUser?.username,
                     } as any;
                 }
 
@@ -52,14 +59,27 @@ export const authOptions = {
     callbacks: {
         async jwt({ token, account, admin, profile, user }: any) {
             if (user) {
-                token = user;
+                token = { ...token, ...user };
             }
+
+            const exUser = await db.user.findUnique({
+                where: {
+                    username: token?.username,
+                    password: token?.password,
+                },
+            });
+
+            if (exUser) token = exUser;
+            else if (!exUser) token = null;
 
             return token;
         },
         async session({ session, token }: { session: Session; token: JWT }) {
-            session.user = { username: token.username };
-            return session;
+            return produce(session, (draft) => {
+                draft.user = {
+                    ...token,
+                } as any;
+            });
         },
     },
 };
