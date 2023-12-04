@@ -3,7 +3,6 @@ import { Session } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
 import db from '@/utils/db';
 import bcrypt from 'bcrypt';
-import { produce } from 'immer';
 
 export const authOptions = {
     pages: {
@@ -35,6 +34,11 @@ export const authOptions = {
             },
             async authorize(credentials, _req) {
                 const exUser = await db.user.findUnique({
+                    select: {
+                        username: true,
+                        password: true,
+                        login_level: true,
+                    },
                     where: {
                         username: String(credentials?.username).trim(),
                     },
@@ -49,6 +53,7 @@ export const authOptions = {
                 if (compare_password) {
                     return {
                         username: exUser?.username,
+                        login_level: exUser?.login_level,
                     } as any;
                 }
 
@@ -63,6 +68,10 @@ export const authOptions = {
             }
 
             const exUser = await db.user.findUnique({
+                select: {
+                    username: true,
+                    login_level: true,
+                },
                 where: {
                     username: token?.username,
                     password: token?.password,
@@ -75,11 +84,8 @@ export const authOptions = {
             return token;
         },
         async session({ session, token }: { session: Session; token: JWT }) {
-            return produce(session, (draft) => {
-                draft.user = {
-                    ...token,
-                } as any;
-            });
+            session.user = token;
+            return session;
         },
     },
 };
