@@ -1,17 +1,24 @@
 'use client';
-import { newPost } from '@/server_action/posts';
+import { modifyPost } from '@/server_action/posts';
 import { SubmitErrorHandler, SubmitHandler, useForm } from 'react-hook-form';
-import { PostFormTypes } from '@/types/posts/type';
+import { PostModifyFormTypes } from '@/types/posts/type';
+import { Post } from '@prisma/client';
 
-export default function PostCreate() {
-    const { register, handleSubmit, reset } = useForm<PostFormTypes>();
+export default function PostModifyComponent({ post }: { post: Post | null }) {
+    const { register, handleSubmit, reset } = useForm<PostModifyFormTypes>({
+        defaultValues: {
+            title: post?.title,
+            content: post?.content,
+        },
+    });
 
-    const onValid: SubmitHandler<PostFormTypes> = async (formData) => {
-        await newPost(formData);
+    const onValid: SubmitHandler<PostModifyFormTypes> = async (formData) => {
+        formData.idx = post?.idx!;
+        await modifyPost(formData);
         reset();
     };
 
-    const onInValid: SubmitErrorHandler<PostFormTypes> = (e) => {
+    const onInValid: SubmitErrorHandler<PostModifyFormTypes> = (e) => {
         const [title, content] = [e?.title, e?.content];
         if (title) return alert(title.message);
         else if (content) return alert(content.message);
@@ -19,7 +26,6 @@ export default function PostCreate() {
 
     return (
         <>
-            <title>게시글 생성</title>
             <form onSubmit={handleSubmit(onValid, onInValid)}>
                 <div className="mb-6">
                     <label
@@ -289,7 +295,7 @@ export default function PostCreate() {
                     type={'submit'}
                     className="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
                 >
-                    작성
+                    수정
                 </button>
             </form>
         </>

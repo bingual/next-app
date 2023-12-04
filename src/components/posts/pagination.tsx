@@ -1,22 +1,31 @@
 'use client';
 import Pagination, { ReactJsPaginationProps } from 'react-js-pagination';
-import { useRouter } from 'next/navigation';
-import { PaginationTypes } from '@/types/posts/type';
+import { useParams, usePathname, useRouter } from 'next/navigation';
+import { PaginationPropsTypes } from '@/types/posts/type';
 
 export default function PostPagination({
     page,
     take,
     count,
     search,
-}: PaginationTypes) {
+}: PaginationPropsTypes) {
     const router = useRouter();
+    const pathname = usePathname();
+    const { slug } = useParams();
 
     const handleOnChange: ReactJsPaginationProps['onChange'] = async (
         page: number,
     ) => {
-        router.push(`/posts?page=${page}&take=${take}&search=${search}`, {
-            scroll: false,
-        });
+        pathname === '/posts'
+            ? router.push(`/posts?page=${page}&take=${take}&search=${search}`, {
+                  scroll: false,
+              })
+            : router.push(
+                  `/posts/${slug}/?page=${page}&take=${take}&search=${search}`,
+                  {
+                      scroll: false,
+                  },
+              );
     };
 
     return (

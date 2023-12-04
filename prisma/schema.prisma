@@ -8,24 +8,39 @@ datasource db {
 }
 
 model User {
-    idx         Int      @id @default(autoincrement())
-    username    String   @unique
+    idx         Int       @id @default(autoincrement())
+    username    String    @unique
     password    String
-    login_level Int      @default(1)
-    created_at  DateTime @default(now()) @db.DateTime(0)
-    updated_at  DateTime @default(now()) @db.DateTime(0)
-    posts       Post[]   @relation("user:posts")
+    login_level Int       @default(1)
+    created_at  DateTime  @default(dbgenerated("NOW()")) @db.DateTime
+    updated_at  DateTime  @default(dbgenerated("NOW() ON UPDATE NOW()")) @db.DateTime
+    posts       Post[]    @relation("user:posts")
+    comments    Comment[] @relation("user:comment")
 }
 
 model Post {
-    idx         Int      @id @default(autoincrement())
+    idx         Int       @id @default(autoincrement())
     author      String
-    state       Int      @default(1)
+    state       Int       @default(1)
     title       String
-    content     String   @db.LongText
-    views       Int      @default(0)
-    recommended Int      @default(0)
-    created_at  DateTime @default(now()) @db.DateTime(0)
-    updated_at  DateTime @default(now()) @db.DateTime(0)
-    user        User     @relation("user:posts", fields: [author], references: [username])
+    content     String    @db.LongText
+    views       Int       @default(0)
+    recommended Int       @default(0)
+    published   Boolean   @default(true)
+    created_at  DateTime  @default(dbgenerated("NOW()")) @db.DateTime
+    updated_at  DateTime  @default(dbgenerated("NOW() ON UPDATE NOW()")) @db.DateTime
+    user        User      @relation("user:posts", fields: [author], references: [username])
+    comments    Comment[] @relation("post:comment")
+}
+
+model Comment {
+    idx        Int      @id @default(autoincrement())
+    post_id    Int
+    author     String
+    content    String   @db.LongText
+    published  Boolean  @default(true)
+    created_at DateTime @default(dbgenerated("NOW()")) @db.DateTime
+    updated_at DateTime @default(dbgenerated("NOW() ON UPDATE NOW()")) @db.DateTime
+    user       User     @relation("user:comment", fields: [author], references: [username])
+    post       Post     @relation("post:comment", fields: [post_id], references: [idx])
 }

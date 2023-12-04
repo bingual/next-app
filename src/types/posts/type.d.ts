@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Comment } from '@prisma/client';
 
 const Props = z.object({
     params: z.object({
@@ -18,17 +19,39 @@ const PostFormTypes = z.object({
 
 type PostFormTypes = z.infer<typeof PostFormTypes>;
 
-const PaginationTypes = z.object({
+const PostModifyFormTypes = z.object({
+    idx: z.number(),
+    title: z.string(),
+    content: z.string(),
+});
+
+type PostModifyFormTypes = z.infer<typeof PostModifyFormTypes>;
+
+const PaginationPropsTypes = z.object({
     page: z.number(),
     take: z.number(),
     count: z.number(),
     search: z.string(),
 });
 
-type PaginationTypes = z.infer<typeof PaginationTypes>;
+type PaginationPropsTypes = z.infer<typeof PaginationPropsTypes>;
 
-const SearchTypes = z.object({
+const SearchFormTypes = z.object({
     search: z.string(),
 });
 
-type SearchTypes = z.infer<typeof SearchTypes>;
+type SearchFormTypes = z.infer<typeof SearchFormTypes>;
+
+const CommentFormTypes = z.object({
+    post_id: z.number(),
+    content: z.string(),
+});
+
+type CommentFormTypes = z.infer<typeof CommentFormTypes>;
+
+type CommentPropsTypes = {
+    page: number;
+    take: number;
+    commentList: Comment[];
+    commentCount: number;
+};

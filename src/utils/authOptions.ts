@@ -5,7 +5,7 @@ import db from '@/utils/db';
 
 export const authOptions = {
     pages: {
-        signIn: '/',
+        // signIn: '/auth/login',
         newUser: '/auth.ts/new-user', // New users will be directed here on first sign in (leave the property out if not of interest)
     },
     session: {

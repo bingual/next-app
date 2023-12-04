@@ -28,5 +28,6 @@ export async function middleware(req: NextRequest, event: NextFetchEvent) {
 
 // 해당 라우트 에서만 미들 웨어 실행
 export const config = {
-    matcher: '/((?!api|_next/static|_next/image|favicon.ico|img).*)',
+    // matcher: '/((?!api|_next/static|_next/image|favicon.ico|img).*)',
+    matcher: ['/auth/login', '/auth/signup', '/posts/create'],
 };

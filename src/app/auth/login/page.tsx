@@ -1,33 +1,35 @@
 'use client';
 import Link from 'next/link';
 import { SubmitErrorHandler, SubmitHandler, useForm } from 'react-hook-form';
-import { SignupFormTypes } from '@/types/auth/type';
-import { signIn } from 'next-auth/react';
+import { LoginFormTypes } from '@/types/auth/type';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 
 export default function AuthLogin() {
     const router = useRouter();
-    const { register, handleSubmit, reset } = useForm<SignupFormTypes>();
+    const { register, handleSubmit, reset } = useForm<LoginFormTypes>();
 
-    const onValid: SubmitHandler<SignupFormTypes> = async (formData) => {
+    const onValid: SubmitHandler<LoginFormTypes> = async (formData) => {
         const { username, password } = formData;
         const res = await signIn('credential', {
             username,
             password,
             redirect: false,
-            callbackUrl: '/',
         });
-        res?.status === 401 && alert('로그인 정보가 일치하지않습니다.');
+
+        res?.status === 401 && alert('로그인 정보가 일치 하지 않습니다.');
+
         if (res?.status === 200) {
             router.push('/');
             reset();
         }
     };
 
-    const onInValid: SubmitErrorHandler<SignupFormTypes> = (e) => {};
+    const onInValid: SubmitErrorHandler<LoginFormTypes> = (e) => {};
 
     return (
         <>
+            <title>로그인</title>
             <section className="bg-gray-50 dark:bg-gray-900">
                 <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
                     <Link
@@ -84,6 +86,7 @@ export default function AuthLogin() {
                                     <div className="flex items-start">
                                         <div className="flex items-center h-5">
                                             <input
+                                                {...register('remember')}
                                                 id="remember"
                                                 aria-describedby="remember"
                                                 type="checkbox"
