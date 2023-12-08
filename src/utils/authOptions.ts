@@ -37,7 +37,7 @@ export const authOptions = {
                 },
             },
             async authorize(credentials, _req) {
-                const exUser = await db.user.findUnique({
+                const exUser = await db.user.findFirst({
                     select: {
                         username: true,
                         password: true,
@@ -89,7 +89,7 @@ export const authOptions = {
                 }: { email: StringArg; name: StringArg; picture: StringArg } =
                     token;
 
-                const exUser = await db.user.findUnique({
+                const exUser = await db.user.findFirst({
                     select: {
                         username: true,
                         name: true,
@@ -128,7 +128,7 @@ export const authOptions = {
                 }: { email: StringArg; name: StringArg; picture: StringArg } =
                     token;
 
-                const exUser = await db.user.findUnique({
+                const exUser = await db.user.findFirst({
                     select: {
                         username: true,
                         name: true,
@@ -163,7 +163,7 @@ export const authOptions = {
                 token = { ...token, ...user };
             }
 
-            const exUser = await db.user.findUnique({
+            const exUser = await db.user.findFirst({
                 select: {
                     username: true,
                     name: true,

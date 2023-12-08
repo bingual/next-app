@@ -2,7 +2,7 @@
 import 'server-only';
 import process from 'process';
 import { SignupFormTypes } from '@/types/auth/type';
-import { db_accelerate } from '@/utils/db_accelerate';
+import db from '@/utils/db';
 import bcrypt from 'bcrypt';
 
 const API_HOST = process.env.NEXT_PUBLIC_API_HOST;
@@ -10,7 +10,7 @@ const API_HOST = process.env.NEXT_PUBLIC_API_HOST;
 export const signup = async (formData: SignupFormTypes) => {
     const { username, password, confirmPassword } = formData;
 
-    const exUser = !!(await db_accelerate.user.findUnique({
+    const exUser = !!(await db.user.findUnique({
         select: {
             username: true,
         },
@@ -32,7 +32,7 @@ export const signup = async (formData: SignupFormTypes) => {
     const salt = await bcrypt.genSalt(saltRound); // 패스워드 생성
     const hashedPassword = await bcrypt.hash(password.trim(), salt); // 패스워드 패턴
 
-    return db_accelerate.user.create({
+    return db.user.create({
         data: {
             username: username,
             password: hashedPassword,

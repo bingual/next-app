@@ -5,6 +5,7 @@ generator client {
 datasource db {
     provider = "mysql"
     url      = env("DATABASE_URL")
+    // directUrl = env("DIRECT_URL")
 }
 
 enum Provider {
@@ -39,7 +40,7 @@ model Post {
     published   Boolean   @default(true)
     created_at  DateTime  @default(dbgenerated("NOW()")) @db.DateTime
     updated_at  DateTime  @default(dbgenerated("NOW() ON UPDATE NOW()")) @db.DateTime
-    user        User      @relation("user:posts", fields: [author], references: [username])
+    user        User      @relation("user:posts", fields: [author], references: [username], onDelete: Cascade)
     comments    Comment[] @relation("post:comment")
 }
 
@@ -51,6 +52,6 @@ model Comment {
     published  Boolean  @default(true)
     created_at DateTime @default(dbgenerated("NOW()")) @db.DateTime
     updated_at DateTime @default(dbgenerated("NOW() ON UPDATE NOW()")) @db.DateTime
-    user       User     @relation("user:comment", fields: [author], references: [username])
-    post       Post     @relation("post:comment", fields: [post_id], references: [idx])
+    user       User     @relation("user:comment", fields: [author], references: [username], onDelete: Cascade)
+    post       Post     @relation("post:comment", fields: [post_id], references: [idx], onDelete: Cascade)
 }
