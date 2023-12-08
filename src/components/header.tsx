@@ -174,6 +174,18 @@ export default function Header() {
                                     게시글 목록
                                 </Link>
                             </li>
+                            <li>
+                                <Link
+                                    href={'/auth/profile'}
+                                    className={`${
+                                        pathname === '/auth/profile'
+                                            ? 'active'
+                                            : 'de_active'
+                                    }`}
+                                >
+                                    내 정보
+                                </Link>
+                            </li>
                         </ul>
                     </div>
                 </div>

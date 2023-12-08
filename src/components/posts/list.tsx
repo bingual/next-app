@@ -6,6 +6,7 @@ import { Post } from '@prisma/client';
 import { StringArg } from '@/types/type';
 import { setViews } from '@/server_action/posts';
 import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 
 export default function PostListComponent({
     postList,
@@ -15,6 +16,7 @@ export default function PostListComponent({
     search: StringArg;
 }) {
     const { data: session, status } = useSession();
+    const [toggle, setToggle] = useState(false);
 
     return (
         <>
@@ -22,6 +24,19 @@ export default function PostListComponent({
                 <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
                     <div>
                         <button
+                            // onClick={() => {
+                            //     const $targetEl =
+                            //         document.getElementById('dropdownRadio');
+                            //     const collapse: CollapseInterface =
+                            //         new Collapse($targetEl);
+                            //     if (!toggle) {
+                            //         collapse.toggle();
+                            //         setToggle(true);
+                            //     } else if (toggle) {
+                            //         collapse.collapse();
+                            //         setToggle(false);
+                            //     }
+                            // }}
                             id="dropdownRadioButton"
                             data-dropdown-toggle="dropdownRadio"
                             className="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
@@ -57,8 +72,8 @@ export default function PostListComponent({
                         <div
                             id="dropdownRadio"
                             className="dropdown_radio z-10 hidden w-48 bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600"
-                            data-popper-reference-hidden=""
-                            data-popper-escaped=""
+                            data-popper-reference-hidden="false"
+                            data-popper-escaped="false"
                             data-popper-placement="top"
                         >
                             <ul

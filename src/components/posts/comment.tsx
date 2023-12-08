@@ -8,8 +8,9 @@ import PostPagination from '@/components/posts/pagination';
 import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { newComment } from '@/server_action/posts';
+import { useState } from 'react';
 
-export default async function PostComment({
+export default function PostComment({
     page,
     take,
     commentList,
@@ -18,6 +19,7 @@ export default async function PostComment({
     const { register, handleSubmit, reset } = useForm<CommentFormTypes>();
     const { slug } = useParams();
     const { data: session, status } = useSession();
+    const [toggle, setToggle] = useState(false);
 
     const onValid: SubmitHandler<CommentFormTypes> = async (formData) => {
         formData.post_id = Number(slug);
@@ -38,43 +40,49 @@ export default async function PostComment({
                         댓글 ({commentCount})
                     </h2>
                 </div>
-                <form
-                    onSubmit={handleSubmit(onValid, onInValid)}
-                    className="mb-6"
-                >
-                    <div className="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-                        <label htmlFor="comment" className="sr-only">
-                            Your comment
-                        </label>
-                        <textarea
-                            {...register('content', {
-                                required: {
-                                    value: true,
-                                    message: '내용은 필수 입력 사항 입니다.',
-                                },
-                                minLength: {
-                                    value: 3,
-                                    message: '내용은 3글자 이상 입력 해주세요.',
-                                },
-                                pattern: {
-                                    value: /\S/g,
-                                    message: '공백만은 허용 되지 않습니다.',
-                                },
-                            })}
-                            id="comment"
-                            rows={6}
-                            className="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none dark:text-white dark:placeholder-gray-400 dark:bg-gray-800"
-                            placeholder="댓글 내용을 입력하세요..."
-                            required
-                        ></textarea>
-                    </div>
-                    <button
-                        type="submit"
-                        className="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-primary-700 rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800"
+                {status === 'authenticated' && (
+                    <form
+                        onSubmit={handleSubmit(onValid, onInValid)}
+                        className="mb-6"
                     >
-                        댓글 작성
-                    </button>
-                </form>
+                        <div className="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+                            <label htmlFor="comment" className="sr-only">
+                                Your comment
+                            </label>
+                            <textarea
+                                {...register('content', {
+                                    required: {
+                                        value: true,
+                                        message:
+                                            '내용은 필수 입력 사항 입니다.',
+                                    },
+                                    minLength: {
+                                        value: 3,
+                                        message:
+                                            '내용은 3글자 이상 입력 해주세요.',
+                                    },
+                                    pattern: {
+                                        value: /\S/g,
+                                        message: '공백만은 허용 되지 않습니다.',
+                                    },
+                                })}
+                                id="comment"
+                                rows={6}
+                                className="px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none dark:text-white dark:placeholder-gray-400 dark:bg-gray-800"
+                                placeholder="댓글 내용을 입력하세요..."
+                                required
+                            ></textarea>
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-primary-700 rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800"
+                        >
+                            댓글 작성
+                        </button>
+                    </form>
+                )}
+
                 {commentList.map((res) => {
                     return (
                         <article

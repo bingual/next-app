@@ -1,6 +1,6 @@
 'use server';
 import 'server-only';
-import db from '@/utils/db';
+import { db_accelerate } from '@/utils/db_accelerate';
 import {
     CommentFormTypes,
     PostFormTypes,
@@ -9,9 +9,9 @@ import {
 import * as process from 'process';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/utils/authOptions';
-import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { NumberArg, StringArg } from '@/types/type';
+import { revalidatePath } from 'next/cache';
 
 const API_HOST = process.env.NEXT_PUBLIC_API_HOST;
 
@@ -22,7 +22,7 @@ export const getPostList = async (
     search: StringArg,
 ) => {
     const [postList, postCount] = await Promise.all([
-        db.post.findMany({
+        db_accelerate.post.findMany({
             where: {
                 title: {
                     contains: search,
@@ -33,7 +33,7 @@ export const getPostList = async (
             skip: take * (page - 1),
             orderBy: { idx: 'desc' },
         }),
-        db.post.count({
+        db_accelerate.post.count({
             where: {
                 title: {
                     contains: search,
@@ -48,31 +48,32 @@ export const getPostList = async (
 
 // 게시글 상세
 export const getPost = async (idx: NumberArg) => {
-    return db.post.findUnique({
+    return db_accelerate.post.findUnique({
         where: {
             idx: idx,
             published: true,
+        },
+        cacheStrategy: {
+            swr: 2,
         },
     });
 };
 
 // 조회수 증가
 export const setViews = async (idx: NumberArg) => {
-    const res = await db.post.update({
+    await db_accelerate.post.update({
         where: { idx: idx, published: true },
         data: { views: { increment: 1 } },
     });
-
     revalidatePath(`/posts`);
     revalidatePath(`/posts/${idx}`);
-    return res;
 };
 
 // 게시글 생성 (useForm)
 export const newPost = async (formData: PostFormTypes) => {
     const session = await getServerSession(authOptions);
     const { title, content } = formData;
-    const res = await db.post.create({
+    await db_accelerate.post.create({
         data: {
             author: session?.user.username!,
             title: String(title).trim(),
@@ -80,14 +81,13 @@ export const newPost = async (formData: PostFormTypes) => {
         },
     });
     revalidatePath(`/posts`);
-    revalidatePath(`/posts/${res.idx}`);
     redirect('/posts');
 };
 
 // 게시글 수정
 export const modifyPost = async (formData: PostModifyFormTypes) => {
     const { idx, title, content } = formData;
-    await db.post.update({
+    await db_accelerate.post.update({
         where: {
             idx: idx,
             published: true,
@@ -97,14 +97,14 @@ export const modifyPost = async (formData: PostModifyFormTypes) => {
             content: String(content).trim(),
         },
     });
-    revalidatePath(`/posts`);
     revalidatePath(`/posts/${idx}`);
+    revalidatePath(`/posts/${idx}/modify`);
     redirect(`/posts/${idx}`);
 };
 
 // 게시글 삭제
 export const deletePost = async (idx: NumberArg) => {
-    await db.post.update({
+    await db_accelerate.post.update({
         where: {
             idx: Number(idx),
             published: true,
@@ -114,23 +114,7 @@ export const deletePost = async (idx: NumberArg) => {
         },
     });
     revalidatePath(`/posts`);
-    revalidatePath(`/posts/${idx}`);
     redirect(`/posts`);
-};
-
-// 댓글 생성
-export const newComment = async (formData: CommentFormTypes) => {
-    const session = await getServerSession(authOptions);
-    const { post_id, content } = formData;
-
-    await db.comment.create({
-        data: {
-            post_id: post_id,
-            author: session?.user.username!,
-            content: content.trim(),
-        },
-    });
-    revalidatePath(`/posts/${post_id}`);
 };
 
 // 댓글 목록
@@ -140,7 +124,7 @@ export const getCommentList = async (
     take: NumberArg,
 ) => {
     const [commentList, commentCount] = await Promise.all([
-        db.comment.findMany({
+        db_accelerate.comment.findMany({
             where: {
                 post_id: post_id,
                 published: true,
@@ -149,7 +133,7 @@ export const getCommentList = async (
             skip: take * (page - 1),
             orderBy: { idx: 'desc' },
         }),
-        db.comment.count({
+        db_accelerate.comment.count({
             where: {
                 post_id: post_id,
             },
@@ -157,4 +141,19 @@ export const getCommentList = async (
     ]);
 
     return { commentList, commentCount };
+};
+
+// 댓글 생성
+export const newComment = async (formData: CommentFormTypes) => {
+    const session = await getServerSession(authOptions);
+    const { post_id, content } = formData;
+
+    await db_accelerate.comment.create({
+        data: {
+            post_id: post_id,
+            author: session?.user.username!,
+            content: content.trim(),
+        },
+    });
+    revalidatePath(`/posts/${post_id}`);
 };

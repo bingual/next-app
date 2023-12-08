@@ -6,9 +6,16 @@ export default function Home() {
     const { data: session, status } = useSession();
     return (
         <>
-            <p className={"text-primary-950 font-['Roboto']"}>폰트 테스트</p>
             {status === 'authenticated' && (
-                <h3>{session?.user.username} 님 환영 합니다.</h3>
+                <>
+                    <img
+                        src={session?.user.avatar!}
+                        alt={'...avatar'}
+                        width={100}
+                        height={100}
+                    />
+                    <h3>{session?.user.username} 님 환영 합니다.</h3>
+                </>
             )}
         </>
     );

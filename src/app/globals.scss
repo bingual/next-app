@@ -43,19 +43,19 @@ ul.pagination li a {
 
 ul.pagination li.active a {
     color: #fff;
-    border-radius: 300%;
+    border-radius: 10%;
 }
 
 ul.pagination li.active {
     color: #fff;
     background: #666;
-    border-radius: 300%;
+    border-radius: 10%;
 }
 
 ul.pagination li:hover {
     color: #fff;
     background: #999;
-    border-radius: 300%;
+    border-radius: 10%;
     cursor: pointer;
     a {
         color: #fff;

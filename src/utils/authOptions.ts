@@ -1,8 +1,12 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
+import KakaoProvider from 'next-auth/providers/kakao';
+import NaverProvider from 'next-auth/providers/naver';
 import { Session } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
 import db from '@/utils/db';
 import bcrypt from 'bcrypt';
+import { StringArg } from '@/types/type';
+import { Provider } from '@prisma/client';
 
 export const authOptions = {
     pages: {
@@ -37,6 +41,9 @@ export const authOptions = {
                     select: {
                         username: true,
                         password: true,
+                        name: true,
+                        provider: true,
+                        avatar: true,
                         login_level: true,
                     },
                     where: {
@@ -53,6 +60,9 @@ export const authOptions = {
                 if (compare_password) {
                     return {
                         username: exUser?.username,
+                        name: exUser?.name,
+                        provider: exUser?.provider,
+                        avatar: exUser?.avatar,
                         login_level: exUser?.login_level,
                     } as any;
                 }
@@ -60,9 +70,95 @@ export const authOptions = {
                 return null; // status == 401 권한에러
             },
         }),
+        KakaoProvider({
+            clientId: process.env.KAKAO_CLIENT_ID!,
+            clientSecret: process.env.KAKAO_CLIENT_SECRET!,
+        }),
+        NaverProvider({
+            clientId: process.env.NAVER_CLIENT_ID!,
+            clientSecret: process.env.NAVER_CLIENT_SECRET!,
+        }),
     ],
     callbacks: {
         async jwt({ token, account, admin, profile, user }: any) {
+            if (account?.provider === 'kakao') {
+                const {
+                    email,
+                    name,
+                    picture,
+                }: { email: StringArg; name: StringArg; picture: StringArg } =
+                    token;
+
+                const exUser = await db.user.findUnique({
+                    select: {
+                        username: true,
+                        name: true,
+                        provider: true,
+                        avatar: true,
+                        login_level: true,
+                    },
+                    where: {
+                        username: token?.email,
+                        provider: Provider.kakao,
+                    },
+                });
+
+                if (!exUser) {
+                    await db.user.create({
+                        data: {
+                            username: email,
+                            name: name,
+                            password: '',
+                            provider: Provider.kakao,
+                            avatar: picture,
+                        },
+                    });
+                }
+
+                token = { ...exUser };
+
+                return token;
+            }
+
+            if (account?.provider === 'naver') {
+                const {
+                    email,
+                    name,
+                    picture,
+                }: { email: StringArg; name: StringArg; picture: StringArg } =
+                    token;
+
+                const exUser = await db.user.findUnique({
+                    select: {
+                        username: true,
+                        name: true,
+                        provider: true,
+                        avatar: true,
+                        login_level: true,
+                    },
+                    where: {
+                        username: token?.email,
+                        provider: Provider.naver,
+                    },
+                });
+
+                if (!exUser) {
+                    await db.user.create({
+                        data: {
+                            username: email,
+                            name: name,
+                            password: '',
+                            provider: Provider.naver,
+                            avatar: picture,
+                        },
+                    });
+                }
+
+                token = { ...exUser };
+
+                return token;
+            }
+
             if (user) {
                 token = { ...token, ...user };
             }
@@ -70,11 +166,13 @@ export const authOptions = {
             const exUser = await db.user.findUnique({
                 select: {
                     username: true,
+                    name: true,
+                    provider: true,
+                    avatar: true,
                     login_level: true,
                 },
                 where: {
                     username: token?.username,
-                    password: token?.password,
                 },
             });
 

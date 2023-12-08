@@ -7,10 +7,20 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+enum Provider {
+    Credentials
+    kakao
+    naver
+}
+
 model User {
     idx         Int       @id @default(autoincrement())
     username    String    @unique
     password    String
+    name        String?
+    nickname    String?
+    avatar      String?
+    provider    Provider  @default(Credentials)
     login_level Int       @default(1)
     created_at  DateTime  @default(dbgenerated("NOW()")) @db.DateTime
     updated_at  DateTime  @default(dbgenerated("NOW() ON UPDATE NOW()")) @db.DateTime

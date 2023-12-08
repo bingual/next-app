@@ -48,6 +48,25 @@ export default function AuthLogin() {
                             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                                 로그인
                             </h1>
+                            <div className={'flex justify-around mb-5'}>
+                                <button
+                                    onClick={async () => {
+                                        const res = await signIn('naver');
+                                    }}
+                                >
+                                    네이버 로그인
+                                </button>
+                                <button
+                                    onClick={async () => {
+                                        const res = await signIn('kakao');
+                                    }}
+                                >
+                                    카카오 로그인
+                                </button>
+                            </div>
+                            <div className={' mb-5'}>
+                                <hr />
+                            </div>
                             <form
                                 onSubmit={handleSubmit(onValid, onInValid)}
                                 className="space-y-4 md:space-y-6"
